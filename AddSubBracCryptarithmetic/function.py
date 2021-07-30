@@ -148,12 +148,44 @@ def initCSP():  # mo phong CSP
     C = []  # tao list luu cac constraints
     for i in range(len(VT)):  # them vao cac phan tu dau cua ve trai
         if VT[i][0] not in X:
-            X[VT[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            set_variable.append(VT[i][0])
+            if len(VT[i]) != 1:
+                X[VT[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                set_variable.append(VT[i][0])
+            else:
+                flag = True
+                for j in range(i+1, len(VT)):
+                    if VT[j][0] == VT[i][0] and len(VT[j]) != 1:
+                        X[VT[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        set_variable.append(VT[i][0])
+                        flag = False
+                        break
+                if not flag:
+                    continue
+                for j in range(0, len(VP)):
+                    if VP[j][0] == VT[i][0] and len(VP[j]) != 1:
+                        X[VT[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        set_variable.append(VT[i][0])
+                        flag = False
+                        break
+                if flag:
+                    X[VT[i][0]] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    set_variable.append(VT[i][0])
     for i in range(len(VP)):  # them vao cac phan tu dau cua ve phai
         if VP[i][0] not in X:
-            X[VP[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            set_variable.append(VP[i][0])
+            if len(VP[i]) != 1:
+                X[VP[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                set_variable.append(VP[i][0])
+            else:
+                flag = True
+                for j in range(i+1, len(VP)):
+                    if VP[j][0] == VP[i][0] and len(VP[j]) != 1:
+                        X[VP[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        set_variable.append(VP[i][0])
+                        flag = False
+                        break
+                if flag:
+                    X[VP[i][0]] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    set_variable.append(VP[i][0])
     for element in VT:
         for index in range(0, len(element)):
             if element[index] not in X and index != 0:  # neu chua co trong variable va khong dung dau

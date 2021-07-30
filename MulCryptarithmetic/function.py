@@ -25,8 +25,10 @@ def addConstraints(component, C, set_variable):  # them constraints
                     res[index+j] += f" + {temp[j]}"
         index += 1
     for i in range(len(res)):
-        if i == 0:
+        if i == 0 and i != len(res)-1:
             res[i] += f" - {component[2][z-1-i]} == C{C_index} * 10"
+        elif i == 0 and i == len(res)-1:
+            res[i] += f" == {component[2][z-1-i]}"
         elif i == len(res)-1:
             if len(res[i]) != 0:
                 res[i] += f" + C{C_index-1} == {component[2][z-1-i]}"
@@ -43,13 +45,27 @@ def initCSP():  # mo phong CSP
     temp = f.read()
     f.close()
     component = re.split('\*|\=', temp)  # tien hanh tach input
+    if len(component[2]) < len(component[0]) + len(component[1]) - 1:
+        return "NO SOLUTION", "NO SOLUTION", "NO SOLUTION"
     X = {}  # tao dictionary luu variable and domain
     set_variable = []  # tao list chi luu variable
     C = []  # tao list luu cac constraints
     for i in range(0, 3):  # them vao cac phan tu dau truoc
         if component[i][0] not in X:
-            X[component[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            set_variable.append(component[i][0])
+            if len(component[i]) != 1:  # neu phan tu do chua nhieu bien
+                X[component[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                set_variable.append(component[i][0])
+            else:  # neu phan tu do chua mot bien
+                flag = True
+                for j in range(i+1, 3):  # duyet cac phan tu sau phan tu do
+                    if component[j][0] == component[i][0] and len(component[j]) != 1:  # neu co phan tu dau nao giong ma co do dai khac 1
+                        X[component[i][0]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        set_variable.append(component[i][0])
+                        flag = False
+                        break
+                if flag:  # neu khong co phan tu dau nao giong thi no co gia tri la 0
+                    X[component[i][0]] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    set_variable.append(component[i][0])
     for element in component:
         for index in range(0, len(element)):
             if element[index] not in X and index != 0:  # neu chua co trong variable va khong dung dau
@@ -72,7 +88,7 @@ def chooseVariable(assignment, X, C):  # chon bien de gan gia tri (theo R.H.S)
                 return element
 
 
-def findCarry(assignment, X, C):  # tim bien trong constraint
+def findRightVariable(assignment, X, C):  # tim bien trong constraint
     countLoop = 0  # dem so lan thuc hien tim bien
     for constraints in C:  # duyet constraint
         if "!" in constraints:  # duyet cac constraints khong là allDiff
@@ -131,7 +147,6 @@ def checkConsistent(assignment, X, C):  # kiem tra tinh dung dan
 
 
 def backtrackingSearch(assignment, X, C):  # duyet qua tat ca cac truong hop
-    countLoop = 0
     if len(assignment) == len(X):  # truong hop tim ra loi giai
         if checkConsistent(assignment, X, C):  # neu thoa dieu kien
             return True
@@ -140,7 +155,7 @@ def backtrackingSearch(assignment, X, C):  # duyet qua tat ca cac truong hop
     for element in X[var]:
         assignment[var] = element  # gan gia tri cho bien
         if checkConsistent(assignment, X, C):  # kiem tra tinh dung dan
-            countLoop = findCarry(assignment, X, C)  # tien hanh suy luan bien
+            countLoop = findRightVariable(assignment, X, C)  # tien hanh suy luan bien
             if countLoop == -1:  # neu suy luan that bai thi tiep tuc loop
                 continue
             result = backtrackingSearch(assignment, X, C)  # neu dung thi tiep tuc gan bien khac
