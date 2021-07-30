@@ -78,6 +78,14 @@ def initCSP():  # mo phong CSP
     return set_variable, X, C
 
 
+def countVariable(variable, constraints):
+    component = re.split('\ + |\ - |\ == |\ * ', constraints)
+    for element in component:
+        if variable == element:
+            return True
+    return False
+
+
 def chooseVariable(assignment, X, C):  # chon bien de gan gia tri (theo R.H.S)
     for constraints in C:  # duyet qua tung constrains
         if "!" in constraints:  # duyet cac constraints khong là allDiff
@@ -98,13 +106,13 @@ def findRightVariable(assignment, X, C):  # tim bien trong constraint
         count1 = 0  # dem so luong bien trong assignment nam trong constraint
         count2 = 0  # dem so luong bien trong X nam trong ve trai
         for element in assignment:  # duyet qua cac bien da gan gia tri nam trong ve trai constraint
-            if element in lst[0]:
+            if countVariable(element, lst[0]):
                 count += 1
         for element in assignment:  # duyet qua cac bien da gan nam trong constraint
-            if element in constraints:
+            if countVariable(element, constraints):
                 count1 += 1
         for element in X:  # duyet qua cac bien nam ben ve trai constraint
-            if element in lst[0]:
+            if countVariable(element, lst[0]):
                 count2 += 1
         if count == count1 and count == count2:  # neu thoa dieu kien thi tien hanh tim bien
             RHS = lst[1].split()

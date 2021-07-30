@@ -1,3 +1,6 @@
+import re
+
+
 def addConstraints(VT, VP, C, set_variable):  # them constraints
     for i in range(0, len(set_variable)-1):  # thiet lap AllDIff
         for j in range(i+1, len(set_variable)):
@@ -214,6 +217,14 @@ def initCSP():  # mo phong CSP
     return set_variable, X, C
 
 
+def countVariable(variable, constraints):
+    component = re.split('\ + |\ - |\ == |\ * ', constraints)
+    for element in component:
+        if variable == element:
+            return True
+    return False
+
+
 def chooseVariable(assignment, X, C):  # chon bien de gan gia tri (theo R.H.S)
     for constraints in C:  # duyet qua tung constrains
         if "!" in constraints:  # duyet cac constraints khong là allDiff
@@ -224,7 +235,7 @@ def chooseVariable(assignment, X, C):  # chon bien de gan gia tri (theo R.H.S)
                 return element
 
 
-def findCarry(assignment, X, C):  # tim bien trong constraint
+def findRightVariable(assignment, X, C):  # tim bien trong constraint
     countLoop = 0  # dem so lan thuc hien tim bien
     for constraints in C:  # duyet constraint
         if "!" in constraints:  # duyet cac constraints khong là allDiff
@@ -234,13 +245,13 @@ def findCarry(assignment, X, C):  # tim bien trong constraint
         count1 = 0  # dem so luong bien trong assignment nam trong constraint
         count2 = 0  # dem so luong bien trong X nam trong ve trai
         for element in assignment:  # duyet qua cac bien da gan gia tri nam trong ve trai constraint
-            if element in lst[0]:
+            if countVariable(element, lst[0]):
                 count += 1
         for element in assignment:  # duyet qua cac bien da gan nam trong constraint
-            if element in constraints:
+            if countVariable(element, constraints):
                 count1 += 1
         for element in X:  # duyet qua cac bien nam ben ve trai constraint
-            if element in lst[0]:
+            if countVariable(element, lst[0]):
                 count2 += 1
         if count == count1 and count == count2:  # neu thoa dieu kien thi tien hanh tim bien
             RHS = lst[1].split()
@@ -283,7 +294,6 @@ def checkConsistent(assignment, X, C):  # kiem tra tinh dung dan
 
 
 def backtrackingSearch(assignment, X, C):  # duyet qua tat ca cac truong hop
-    countLoop = 0
     if len(assignment) == len(X):  # truong hop tim ra loi giai
         if checkConsistent(assignment, X, C):  # neu thoa dieu kien
             return True
@@ -292,7 +302,7 @@ def backtrackingSearch(assignment, X, C):  # duyet qua tat ca cac truong hop
     for element in X[var]:
         assignment[var] = element  # gan gia tri cho bien
         if checkConsistent(assignment, X, C):  # kiem tra tinh dung dan
-            countLoop = findCarry(assignment, X, C)  # tien hanh suy luan bien
+            countLoop = findRightVariable(assignment, X, C)  # tien hanh suy luan bien
             if countLoop == -1:  # neu suy luan that bai thi tiep tuc loop
                 continue
             result = backtrackingSearch(assignment, X, C)  # neu dung thi tiep tuc gan bien khac

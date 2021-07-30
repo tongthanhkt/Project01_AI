@@ -21,7 +21,7 @@ def calculator():
 
 
 def delayM():
-    time.sleep(5)                     # Setting thoi gian (tham so-> thoi gian)
+    time.sleep(600)                     # Setting thoi gian (tham so-> thoi gian)
     print("Chay qua thoi gian")
     os._exit(0)
 
